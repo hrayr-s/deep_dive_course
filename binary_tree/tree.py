@@ -6,8 +6,8 @@ from binary_tree.draw_tree import networkx_graph
 from execution_time import execution_time
 
 
-LEFT = 0
-RIGHT = 1
+LEFT = False
+RIGHT = True
 ASCENDING = 'ASC'
 DESCENDING = 'DESC'
 
@@ -36,6 +36,9 @@ class Node:
         :return:
         """
         return DESCENDING == self.ordering
+
+    def is_root(self):
+        return self.parent is None
 
     @staticmethod
     def new(value: int, parent: Optional['Node'] = None, parent_side: Optional[int] = None) -> 'Node':
@@ -203,7 +206,7 @@ class Node:
             raise NotImplementedError('Root node removal not yet implemented.')
 
         if not node.has_branches():
-            if node.parent_side == LEFT:
+            if node.parent_side is LEFT:
                 node.parent.left = None
             else:
                 node.parent.right = None
@@ -236,17 +239,17 @@ class Node:
         :return:
         """
         assert self.parent is not None, "`attach_to_parent` cannot be done on root node"
-        # assert self.has_exactly_one_branch(), "`attach_to_parent` cannot be done if node has more than one branches"
+        # assert self.has_exactly_one_branch(), "`attach_to_parent` cannot be done if node has more than one branch"
 
         # detach replacement from its parent
-        if node.parent_side == LEFT:
+        if node.parent_side is LEFT:
             node.parent.left = None
         else:
             node.parent.right = None
         node.parent = None
 
         # attach replacement to new parent
-        if self.parent_side == LEFT:
+        if self.parent_side is LEFT:
             self.parent.left = node
         else:
             self.parent.right = node
@@ -299,6 +302,44 @@ class Node:
         while current_level_nodes:
             current_level_nodes = _task(current_level_nodes)
 
+    def next(self, node: Optional['Node'] = None) -> Optional['Node']:
+        if node is None:
+            node = self
+
+        if node.right:
+            return node.right.minimum
+
+        if node.parent and node.parent_side is LEFT:
+            return node.parent
+
+        parent = node
+        while parent.parent and not parent.parent.is_root() and parent.parent_side is RIGHT:
+            parent = parent.parent
+
+        if parent.parent and (not parent.parent.is_root() or parent.parent_side is LEFT):
+            return parent.parent
+
+        return None
+
+    def prev(self, node: Optional['Node'] = None) -> Optional['Node']:
+        if node is None:
+            node = self
+
+        if node.left:
+            return node.left.maximum
+
+        if node.parent and node.parent_side is RIGHT:
+            return node.parent
+
+        parent = node
+        while parent.parent and not parent.parent.is_root() and parent.parent_side is LEFT:
+            parent = parent.parent
+
+        if parent.parent and (not parent.parent.is_root() or parent.parent_side is RIGHT):
+            return parent.parent
+
+        return None
+
 
 if __name__ == '__main__':
 
@@ -318,6 +359,23 @@ if __name__ == '__main__':
     assert node.elements_count == initial_count, "Root elements count should be {}, got {}".format(
         initial_count, node.elements_count
     )
+
+    list_copy = test_elements_optimized_order.copy()
+
+    list_copy.sort()
+    tmp_node = node.look_recursive(list_copy[0])
+    for i in list_copy[1:]:
+        assert tmp_node.next().value == i, f"Expected next node for '{tmp_node.value}' to be {i}, got {tmp_node.next().value}"
+        tmp_node = tmp_node.next()
+
+    list_copy.sort(reverse=True)
+
+    for i in list_copy[1:]:
+        assert tmp_node.prev().value == i, f"Expected prev node for '{tmp_node.value}' to be '{i}', got '{tmp_node.prev().value}'"
+        tmp_node = tmp_node.prev()
+
+    del tmp_node
+    del list_copy
 
     # validate removal of node that has both(left & right) branches
     node.delete(83)
@@ -365,6 +423,11 @@ if __name__ == '__main__':
     node.add(46)
     assert node.validate_tree(), draw(node) and "The tree is not valid"
     assert node.look_recursive(54).left.value == 46, draw(node) and f"Expected '46' to be added on left of '54', got '{node.look_recursive(56).left.value}'"
-    draw(node)
 
+
+    assert node.look_recursive(96).next() is None, draw(node) and f"Expected None on after 96, got '{node.look_recursive(96).next()}'"
+    assert node.look_recursive(63).next() is node, draw(node) and f"Expected '{node.value}', got '{node.look_recursive(63).next().value}'"
+    assert node.look_recursive(58).next().value == 60, draw(node) and f"Expected '{node.value}', got '{node.look_recursive(58).next().value}'"
+
+    draw(node)
     print("Everything is OK")
