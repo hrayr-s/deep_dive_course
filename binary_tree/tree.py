@@ -1,10 +1,8 @@
 import dataclasses
-import warnings
 from typing import Optional, Union, List
 
 from binary_tree.draw_tree import networkx_graph
 from execution_time import execution_time
-
 
 LEFT = False
 RIGHT = True
@@ -302,43 +300,39 @@ class Node:
         while current_level_nodes:
             current_level_nodes = _task(current_level_nodes)
 
-    def next(self, node: Optional['Node'] = None) -> Optional['Node']:
+    def _next_or_prev_value(self, prev_or_next: bool, node: Optional['Node'] = None) -> Optional[int]:
+        """
+        :param prev_or_next: if True, return the next value, otherwise the previous value
+        :param node:
+        :return:
+        """
         if node is None:
             node = self
 
-        if node.right:
-            return node.right.minimum
+        if prev_or_next:
+            if self.right:
+                return node.right.minimum
+        else:
+            if self.left:
+                return node.left.maximum
 
-        if node.parent and node.parent_side is LEFT:
+        if node.parent and node.parent_side is not prev_or_next:
             return node.parent
 
         parent = node
-        while parent.parent and not parent.parent.is_root() and parent.parent_side is RIGHT:
+        while parent.parent and not parent.parent.is_root() and parent.parent_side is prev_or_next:
             parent = parent.parent
 
-        if parent.parent and (not parent.parent.is_root() or parent.parent_side is LEFT):
+        if parent.parent and (not parent.parent.is_root() or parent.parent_side is not prev_or_next):
             return parent.parent
 
         return None
+
+    def next(self, node: Optional['Node'] = None) -> Optional['Node']:
+        return self._next_or_prev_value(True, node)
 
     def prev(self, node: Optional['Node'] = None) -> Optional['Node']:
-        if node is None:
-            node = self
-
-        if node.left:
-            return node.left.maximum
-
-        if node.parent and node.parent_side is RIGHT:
-            return node.parent
-
-        parent = node
-        while parent.parent and not parent.parent.is_root() and parent.parent_side is LEFT:
-            parent = parent.parent
-
-        if parent.parent and (not parent.parent.is_root() or parent.parent_side is RIGHT):
-            return parent.parent
-
-        return None
+        return self._next_or_prev_value(False, node)
 
 
 if __name__ == '__main__':
