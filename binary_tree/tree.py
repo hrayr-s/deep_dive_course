@@ -117,6 +117,7 @@ class Node:
                 node = self.higher.look_recursive(value, time=False)
             if look_inside_parent and node is None and self.parent is not None:
                 # it will look in one branch only
+                # TODO recursion issue found
                 node = self.parent.look_recursive(value, time=False)
 
         return node
