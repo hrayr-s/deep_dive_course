@@ -49,11 +49,17 @@ cmake_ninja_workdir = /Users/hrayr/CLionProjects/deep_dive_course/cmake-build-de
 
 build cmake_object_order_depends_target_deep_dive_course: phony || .
 
-build CMakeFiles/deep_dive_course.dir/hash_tables/simple_table.c.o: C_COMPILER__deep_dive_course_unscanned_Debug /Users/hrayr/CLionProjects/deep_dive_course/hash_tables/simple_table.c || cmake_object_order_depends_target_deep_dive_course
-  DEP_FILE = CMakeFiles/deep_dive_course.dir/hash_tables/simple_table.c.o.d
+build CMakeFiles/deep_dive_course.dir/binary_tree/bst.c.o: C_COMPILER__deep_dive_course_unscanned_Debug /Users/hrayr/CLionProjects/deep_dive_course/binary_tree/bst.c || cmake_object_order_depends_target_deep_dive_course
+  DEP_FILE = CMakeFiles/deep_dive_course.dir/binary_tree/bst.c.o.d
   FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX15.2.sdk -fcolor-diagnostics
   OBJECT_DIR = CMakeFiles/deep_dive_course.dir
-  OBJECT_FILE_DIR = CMakeFiles/deep_dive_course.dir/hash_tables
+  OBJECT_FILE_DIR = CMakeFiles/deep_dive_course.dir/binary_tree
+
+build CMakeFiles/deep_dive_course.dir/binary_tree/main.c.o: C_COMPILER__deep_dive_course_unscanned_Debug /Users/hrayr/CLionProjects/deep_dive_course/binary_tree/main.c || cmake_object_order_depends_target_deep_dive_course
+  DEP_FILE = CMakeFiles/deep_dive_course.dir/binary_tree/main.c.o.d
+  FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX15.2.sdk -fcolor-diagnostics
+  OBJECT_DIR = CMakeFiles/deep_dive_course.dir
+  OBJECT_FILE_DIR = CMakeFiles/deep_dive_course.dir/binary_tree
 
 
 # =============================================================================
@@ -63,7 +69,7 @@ build CMakeFiles/deep_dive_course.dir/hash_tables/simple_table.c.o: C_COMPILER__
 #############################################
 # Link the executable deep_dive_course
 
-build deep_dive_course: C_EXECUTABLE_LINKER__deep_dive_course_Debug CMakeFiles/deep_dive_course.dir/hash_tables/simple_table.c.o
+build deep_dive_course: C_EXECUTABLE_LINKER__deep_dive_course_Debug CMakeFiles/deep_dive_course.dir/binary_tree/bst.c.o CMakeFiles/deep_dive_course.dir/binary_tree/main.c.o
   FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX15.2.sdk
   OBJECT_DIR = CMakeFiles/deep_dive_course.dir
   POST_BUILD = :
