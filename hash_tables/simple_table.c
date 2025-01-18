@@ -46,21 +46,19 @@ Hash hasher(char* value, unsigned hashtable_size) {
 }
 
 struct HashMap* getOrCreateHashMapForHash(Hash hash) {
-    struct HashMap* mp;
-    size_t hashtb_size = sizeof(*hash_table->map) / sizeof(struct HashMap);
-    for(int i=0; i<hashtb_size; i++) {
+    struct HashMap* mp = NULL;
+    int i = 0;
+    for(i=0; i < hash_table->size; i++) {
         if (hash_table->map[i].hash == hash) {
             mp = &hash_table->map[i];
-            break;
+            return &hash_table->map[i];
         }
     }
     if (mp == NULL) {
-        mp = (struct HashMap*)malloc(sizeof(struct HashMap));
-        mp->hash = hash;
-        for(int i=0; i<hashtb_size; i++) {
+        for(i=0; i < hash_table->size; i++) {
             if ((&hash_table->map[i]) == NULL || hash_table->map[i].hash == 0) {
-                hash_table->map[i] = *mp;
-                break;
+                hash_table->map[i] = (struct HashMap) {.hash = hash};
+                return &hash_table->map[i];
             }
         }
     }
@@ -68,12 +66,13 @@ struct HashMap* getOrCreateHashMapForHash(Hash hash) {
 }
 
 void addToHashMapValues(struct LinkList* next, Hash hash, char* value) {
-    if (next->next == NULL) {
-        next->next = (struct LinkList*)malloc(sizeof(struct LinkList*));
-        next->next->value = value;
+    if (strcmp(next->value, value) == 0) {
         return;
     }
-    if (strcmp(next->value, value) == 0) {
+    if (next->next == NULL) {
+        next->next = (struct LinkList*)malloc(sizeof(struct LinkList*));
+        next->next->value = (char*)malloc(strlen(value) + 1);
+        strcpy(next->next->value, value);
         return;
     }
     addToHashMapValues(next->next, hash, value);
@@ -83,8 +82,8 @@ void addToHashTable(Hash hash, char* value) {
     struct HashMap* hash_map = getOrCreateHashMapForHash(hash);
     if (hash_map->values == NULL) {
         hash_map->values = (struct LinkList*)malloc(sizeof(struct LinkList));
-        hash_map->values->value = value;
-        printf("Added value %s", value);
+        hash_map->values->value = (char*)malloc(strlen(value) + 1);
+        strcpy(hash_map->values->value, value);
         return;
     }
     addToHashMapValues(hash_map->values, hash, value);
@@ -103,7 +102,7 @@ void printNextVal(struct LinkList* next) {
 
 void printHashMap(struct HashMap* hash_map) {
     if (hash_map == NULL || hash_map->hash == 0) {
-//        printf("EMPTY SPACE");
+        printf(".");
         return;
     }
     printf("Hash %llu for ", hash_map->hash);
@@ -117,9 +116,15 @@ int main()
     char* exit_cmd = "exit";
     char* print_cmd = "print";
 
-    const int hashtable_size = 40;
+    size_t hashtable_size = 40;
     hash_table = (struct HashTable*)malloc(sizeof(struct HashTable));
+    hash_table->size = hashtable_size;
+
     hash_table->map = (struct HashMap*)malloc(sizeof(struct HashMap) * hashtable_size);
+
+    for (int i = 0; i < hashtable_size; i++) {
+      hash_table->map[i] = (struct HashMap ){.hash=0, .values=NULL};
+    }
 
     size_t len = 0;
     while (1)
@@ -141,7 +146,7 @@ int main()
 
             if (strcmp(command, print_cmd) == 0) {
                 for (int i=0; i<hashtable_size; i++) {
-                    printHashMap(hash_table->map);
+                    printHashMap(&hash_table->map[i]);
                 }
                 continue;
             }
