@@ -106,7 +106,7 @@ class Node:
         return self.right if self.ascending else self.left
 
     @execution_time
-    def look_recursive(self, value: int, look_inside_parent=True) -> Optional['Node']:
+    def look_recursive(self, value: int, look_inside_parent=False) -> Optional['Node']:
         if value == self.value:
             return self
         else:
@@ -307,6 +307,7 @@ class Node:
             upcoming_level_nodes = []
             for _node in _nodes:
                 _node.left, _node.right = _node.right, _node.left
+                _node.ordering = _node.ordering is ASCENDING and DESCENDING or ASCENDING
                 upcoming_level_nodes += _node.branches_list()
             return upcoming_level_nodes
 
@@ -323,20 +324,30 @@ class Node:
             node = self
 
         if prev_or_next:
-            if self.right:
-                return node.right.minimum
+            if node.right:
+                return node.ascending and node.right.minimum or node.right.maximum
         else:
-            if self.left:
-                return node.left.maximum
+            if node.left:
+                return node.ascending and node.left.maximum or node.left.minimum
 
-        if node.parent and node.parent_side is not prev_or_next:
+        if node.parent and (
+                node.ascending and node.parent_side is not prev_or_next
+            or node.descending and node.parent_side is prev_or_next
+        ):
             return node.parent
 
         parent = node
-        while parent.parent and not parent.parent.is_root() and parent.parent_side is prev_or_next:
+        while parent.parent and not parent.parent.is_root() and (
+                parent.ascending and parent.parent_side is prev_or_next
+            or parent.descending and parent.parent_side is not prev_or_next
+
+        ):
             parent = parent.parent
 
-        if parent.parent and (not parent.parent.is_root() or parent.parent_side is not prev_or_next):
+        if parent.parent and (not parent.parent.is_root() or (
+                parent.ascending and parent.parent_side is not prev_or_next
+            or parent.descending and parent.parent_side is prev_or_next
+        )):
             return parent.parent
 
         return None
@@ -380,6 +391,21 @@ if __name__ == '__main__':
     for i in list_copy[1:]:
         assert tmp_node.prev().value == i, f"Expected prev node for '{tmp_node.value}' to be '{i}', got '{tmp_node.prev().value}'"
         tmp_node = tmp_node.prev()
+
+    node.mirror_recursively()
+
+    tmp_node = node.look_recursive(list_copy[0])
+    for i in list_copy[1:]:
+        assert tmp_node.next().value == i, f"Expected next node for '{tmp_node.value}' to be {i}, got {tmp_node.next().value}"
+        tmp_node = tmp_node.next()
+
+    list_copy.sort()
+
+    for i in list_copy[1:]:
+        assert tmp_node.prev().value == i, f"Expected prev node for '{tmp_node.value}' to be '{i}', got '{tmp_node.prev().value}'"
+        tmp_node = tmp_node.prev()
+
+    node.mirror_recursively()
 
     del tmp_node
     del list_copy
