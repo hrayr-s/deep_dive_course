@@ -33,6 +33,13 @@ void assertf(bool condition, char *message, ...)
     }
 }
 
+// Custom comparator
+int hash_comp(const void* a, const void* b) {
+
+    // If a is smaller, positive value will be returned
+    return (*(int*)a - *(int*)b);
+}
+
 int main()
 {
     Hash nodes_list[] = {72, 44, 60, 62, 83, 63, 56, 46, 80, 25, 15, 54, 92, 84, 96, 28, 58, 8, 7};
@@ -42,6 +49,39 @@ int main()
     {
         root_node->add(root_node, nodes_list[i]);
     }
+
+    qsort(nodes_list, node_list_len, sizeof(Hash), hash_comp);
+
+    Node* temp_node = look_for(root_node, nodes_list[0]);
+    for (int i = 0; i < node_list_len; i++)
+    {
+        assertf(temp_node->value == nodes_list[i], "Expected %llu, got %llu", nodes_list[i], temp_node->value);
+        temp_node = next_node(temp_node);
+    }
+
+    temp_node = look_for(root_node, nodes_list[node_list_len - 1]);
+    for (int i = (int)node_list_len - 1; i >= 0; i--)
+    {
+        assertf(temp_node->value == nodes_list[i], "Expected %llu, got %llu", nodes_list[i], temp_node->value);
+        temp_node = prev_node(temp_node);
+    }
+
+    mirror_recursively(root_node);
+    temp_node = look_for(root_node, nodes_list[0]);
+    for (int i = 0; i < node_list_len; i++)
+    {
+        assertf(temp_node->value == nodes_list[i], "Expected %llu, got %llu", nodes_list[i], temp_node->value);
+        temp_node = prev_node(temp_node);
+    }
+
+    temp_node = look_for(root_node, nodes_list[node_list_len - 1]);
+    for (int i = (int)node_list_len - 1; i >= 0; i--)
+    {
+        assertf(temp_node->value == nodes_list[i], "Expected %llu, got %llu", nodes_list[i], temp_node->value);
+        temp_node = next_node(temp_node);
+    }
+
+    mirror_recursively(root_node);
 
     // Test the code
     assertf(validate(root_node, NULL, NULL), "Invalid tree");
@@ -86,5 +126,12 @@ int main()
     root_node->add(root_node, 46);
     assertf(validate(root_node, NULL, NULL), "Invalid tree");
     assertf(look_for(root_node, 54)->left->value == 46, "Expected 46 to be added on 54 left side, got %llu", look_for(root_node, 54)->left->value);
+
+    // Test next & prev
+    assertf(next_node(look_for(root_node, 96)) == NULL, "Did not expect anything after '96'");
+    assertf(next_node(look_for(root_node, 63)) == root_node, "Expected after 63 the root node, got %llu", next_node(look_for(root_node, 63))->value);
+    assertf(next_node(look_for(root_node, 58))->value == 60, "Expected next after '58' to be 60, got %llu", next_node(look_for(root_node, 58))->value);
+
+    printf("Finishing... OK\n");
     return 0;
 }

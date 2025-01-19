@@ -231,7 +231,8 @@ void set_parent(Node* parent, Node* node, bool Left)
     if (node->parent->left == node)
     {
         node->parent->left = NULL;
-    } else
+    }
+    else
     {
         node->parent->right = NULL;
     }
@@ -240,7 +241,8 @@ void set_parent(Node* parent, Node* node, bool Left)
     if (Left == true)
     {
         parent->left = node;
-    } else
+    }
+    else
     {
         parent->right = node;
     }
@@ -303,7 +305,6 @@ void attach_sub_node_to_parent(Node* node)
 
 void mirror_recursively(Node* node)
 {
-
     Node* temp = node->left;
     node->left = node->right;
     node->right = temp;
@@ -318,7 +319,83 @@ void mirror_recursively(Node* node)
     }
 }
 
-// void mirror_in_loop(Node* node)
-// {
-//
-// }
+Node* prev_or_next(Node* node, bool prev_next)
+{
+    if (node == NULL)
+    {
+        return NULL;
+    }
+    if (prev_next)
+    {
+        if (node->right != NULL)
+        {
+            return node->ordering ? minimum(node->right) : maximum(node->right);
+        }
+    }
+    else
+    {
+        if (node->left != NULL)
+        {
+            return node->ordering ? maximum(node->left) : minimum(node->left);
+        }
+    }
+    return NULL;
+}
+
+Node* next_node(Node* node)
+{
+    Node* temp = prev_or_next(node, true);
+    if (temp != NULL)
+    {
+        // we found next in easy way
+        return temp;
+    }
+
+    if (node->parent != NULL)
+    {
+        if (node->parent->left == node)
+        {
+            return node->parent;
+        }
+    }
+
+    Node* parent = node;
+    while (parent->parent != NULL && parent->parent->parent != NULL && parent->parent->right == parent)
+    {
+        parent = parent->parent;
+    }
+
+    if (parent->parent != NULL && (parent->parent->parent != NULL || parent->parent->left == parent))
+    {
+        return parent->parent;
+    }
+    return NULL;
+}
+
+Node* prev_node(Node* node)
+{
+    Node* temp = prev_or_next(node, false);
+    if (temp != NULL)
+    {
+        // Found in easy way
+        return temp;
+    }
+
+    if (node->parent != NULL && node->parent->right == node)
+    {
+        return node->parent;
+    }
+
+    Node* parent = node;
+    while (parent->parent != NULL && parent->parent->parent != NULL && parent->parent->left == parent)
+    {
+        parent = parent->parent;
+    }
+
+    if (parent->parent != NULL && (parent->parent->parent != NULL || parent->parent->right == parent))
+    {
+        return parent->parent;
+    }
+
+    return NULL;
+}
