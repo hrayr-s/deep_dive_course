@@ -66,6 +66,25 @@ int main()
     mirror_recursively(root_node);
     assertf(root_node->ordering, "Expected root node ordering to be true - means ascending");
 
+    delete(root_node, 80);
+    assertf(validate(root_node, NULL, NULL), "Invalid tree");
+    assertf(root_node->right->value==84,  "Expected 94 on right side, got %llu", root_node->right->value);
+    assertf(root_node->right->left == NULL, "Expected %llu to be NULL", root_node->right->value);
 
+    delete(root_node, 92);
+    assertf(validate(root_node, NULL, NULL), "Invalid tree");
+    assertf(root_node->right->right->value == 96,  "Expected 96 on right side, got %llu", root_node->right->value);
+
+    delete(root_node, 15);
+    assertf(validate(root_node, NULL, NULL), "Invalid tree");
+    assertf(root_node->left->left->left->value == 8, "Expected 8 on left node, got %llu", root_node->left->left->left->value);
+
+    delete(root_node, 46);
+    assertf(validate(root_node, NULL, NULL), "Invalid tree");
+    assertf(look_for(root_node, 56)->left->value == 54, "Expected 54 on left side of node '56', got %llu", look_for(root_node, 56)->left->value);
+
+    root_node->add(root_node, 46);
+    assertf(validate(root_node, NULL, NULL), "Invalid tree");
+    assertf(look_for(root_node, 54)->left->value == 46, "Expected 46 to be added on 54 left side, got %llu", look_for(root_node, 54)->left->value);
     return 0;
 }

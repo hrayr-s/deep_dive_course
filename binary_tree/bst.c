@@ -224,6 +224,10 @@ void delete(Node* root_node, Hash value)
  */
 void set_parent(Node* parent, Node* node, bool Left)
 {
+    if (node == NULL)
+    {
+        return;
+    }
     if (node->parent->left == node)
     {
         node->parent->left = NULL;
