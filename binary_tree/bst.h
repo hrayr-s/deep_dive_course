@@ -27,5 +27,7 @@ bool validate(Node* node, Node* minimum, Node* maximum);
 void delete(Node* node, Hash value);
 void attach_sub_node_to_parent(Node* node);
 void set_parent(Node* node, Node* parent, bool Left);
+void mirror_recursively(Node* node);
+// void mirror_in_loop(Node* node);
 
 #endif

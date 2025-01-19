@@ -296,3 +296,25 @@ void attach_sub_node_to_parent(Node* node)
     }
     attachment->parent = node->parent;
 }
+
+void mirror_recursively(Node* node)
+{
+
+    Node* temp = node->left;
+    node->left = node->right;
+    node->right = temp;
+    node->ordering = !node->ordering;
+    if (node->left != NULL)
+    {
+        mirror_recursively(node->left);
+    }
+    if (node->right != NULL)
+    {
+        mirror_recursively(node->right);
+    }
+}
+
+// void mirror_in_loop(Node* node)
+// {
+//
+// }

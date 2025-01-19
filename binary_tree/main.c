@@ -55,5 +55,17 @@ int main()
     assertf(root_node->right->right != NULL && root_node->right->right->parent == root_node->right, "Expected %llu for root_node->right->right->parent, got %llu", root_node->right->value, root_node->right->right->parent->value);
     assertf(root_node->left->parent == root_node, "Expected %llu parent to be the root node, got %llu", root_node->left->value, root_node->left->parent->value);
 
+    // Check before mirroring
+    assertf(root_node->left->value == 44, "Expect 44 on left node, got %llu", root_node->left->value);
+    mirror_recursively(root_node);
+    assertf(root_node->right->value == 44,  "Expected 44 on right node, got %llu", root_node->right->value);
+    assertf(root_node->left->value == 84,  "Expected 84 on left node, got %llu", root_node->left->value);
+    assertf(!root_node->ordering, "Expected root node ordering to be false - means Descending ordering");
+
+    // revert mirroring
+    mirror_recursively(root_node);
+    assertf(root_node->ordering, "Expected root node ordering to be true - means ascending");
+
+
     return 0;
 }
