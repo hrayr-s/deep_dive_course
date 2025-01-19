@@ -15,7 +15,7 @@ class Node:
     left: Optional['Node'] = None
     right: Optional['Node'] = None
     parent: Optional['Node'] = None
-    parent_side: Optional['int'] = None
+    parent_side: Optional['bool'] = None
     ordering: str = ASCENDING
     elements_count: int = 0
 
@@ -297,8 +297,14 @@ class Node:
         """
         self.ordering = self.ordering == ASCENDING and DESCENDING or ASCENDING
         self.left, self.right = self.right, self.left
-        self.left and self.left.mirror_recursively()
-        self.right and self.right.mirror_recursively()
+
+        if self.left:
+            self.left.mirror_recursively()
+            self.left.parent_side = LEFT
+
+        if self.right:
+            self.right.mirror_recursively()
+            self.right.parent_side = RIGHT
 
     def mirror_in_loop(self) -> None:
         current_level_nodes = [self]
@@ -307,6 +313,10 @@ class Node:
             upcoming_level_nodes = []
             for _node in _nodes:
                 _node.left, _node.right = _node.right, _node.left
+                if _node.left:
+                    _node.left.parent_side = LEFT
+                if _node.right:
+                    _node.right.parent_side = RIGHT
                 _node.ordering = _node.ordering is ASCENDING and DESCENDING or ASCENDING
                 upcoming_level_nodes += _node.branches_list()
             return upcoming_level_nodes
@@ -314,49 +324,43 @@ class Node:
         while current_level_nodes:
             current_level_nodes = _task(current_level_nodes)
 
-    def _next_or_prev_value(self, prev_or_next: bool, node: Optional['Node'] = None) -> Optional[int]:
-        """
-        :param prev_or_next: if True, return the next value, otherwise the previous value
-        :param node:
-        :return:
-        """
+    def next(self, node: Optional['Node'] = None) -> Optional['Node']:
         if node is None:
             node = self
 
-        if prev_or_next:
-            if node.right:
-                return node.ascending and node.right.minimum or node.right.maximum
-        else:
-            if node.left:
-                return node.ascending and node.left.maximum or node.left.minimum
+        if node.right:
+            return node.ascending and node.right.minimum or node.right.maximum
 
-        if node.parent and (
-                node.ascending and node.parent_side is not prev_or_next
-            or node.descending and node.parent_side is prev_or_next
-        ):
+        if node.parent and node.parent_side is LEFT:
             return node.parent
 
         parent = node
-        while parent.parent and not parent.parent.is_root() and (
-                parent.ascending and parent.parent_side is prev_or_next
-            or parent.descending and parent.parent_side is not prev_or_next
-
-        ):
+        while parent.parent and not parent.parent.is_root() and parent.parent_side is RIGHT:
             parent = parent.parent
 
-        if parent.parent and (not parent.parent.is_root() or (
-                parent.ascending and parent.parent_side is not prev_or_next
-            or parent.descending and parent.parent_side is prev_or_next
-        )):
+        if parent.parent and (not parent.parent.is_root() or parent.parent_side is LEFT):
             return parent.parent
 
         return None
 
-    def next(self, node: Optional['Node'] = None) -> Optional['Node']:
-        return self._next_or_prev_value(True, node)
-
     def prev(self, node: Optional['Node'] = None) -> Optional['Node']:
-        return self._next_or_prev_value(False, node)
+        if node is None:
+            node = self
+
+        if node.left:
+            return node.ascending and node.left.maximum or node.left.minimum
+
+        if node.parent and node.parent_side is RIGHT:
+            return node.parent
+
+        parent = node
+        while parent.parent and not parent.parent.is_root() and parent.parent_side is LEFT:
+            parent = parent.parent
+
+        if parent.parent and (not parent.parent.is_root() or parent.parent_side is RIGHT):
+            return parent.parent
+
+        return None
 
 
 if __name__ == '__main__':
@@ -388,6 +392,7 @@ if __name__ == '__main__':
 
     list_copy.sort(reverse=True)
 
+    tmp_node = node.look_recursive(list_copy[0])
     for i in list_copy[1:]:
         assert tmp_node.prev().value == i, f"Expected prev node for '{tmp_node.value}' to be '{i}', got '{tmp_node.prev().value}'"
         tmp_node = tmp_node.prev()
@@ -396,13 +401,14 @@ if __name__ == '__main__':
 
     tmp_node = node.look_recursive(list_copy[0])
     for i in list_copy[1:]:
-        assert tmp_node.next().value == i, f"Expected next node for '{tmp_node.value}' to be {i}, got {tmp_node.next().value}"
+        assert tmp_node.next().value == i, draw(node) and f"Expected next node for '{tmp_node.value}' to be {i}, got {tmp_node.next().value}"
         tmp_node = tmp_node.next()
 
     list_copy.sort()
 
+    tmp_node = node.look_recursive(list_copy[0])
     for i in list_copy[1:]:
-        assert tmp_node.prev().value == i, f"Expected prev node for '{tmp_node.value}' to be '{i}', got '{tmp_node.prev().value}'"
+        assert tmp_node.prev().value == i, draw(node) and f"Expected prev node for '{tmp_node.value}' to be '{i}', got '{tmp_node.prev().value}'"
         tmp_node = tmp_node.prev()
 
     node.mirror_recursively()
