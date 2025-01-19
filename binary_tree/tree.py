@@ -241,10 +241,21 @@ class Node:
         # assert self.has_exactly_one_branch(), "`attach_to_parent` cannot be done if node has more than one branch"
 
         # detach replacement from its parent
+
+        # here we're sure that our replacement has at most one child
+        # as we selected maximum or minimum from the tree
+        replacement_child_node = node.left or node.right
+
         if node.parent_side is LEFT:
-            node.parent.left = None
+            # node.parent.left = None
+            node.parent.left = replacement_child_node
         else:
-            node.parent.right = None
+            # node.parent.right = None
+            node.parent.right = replacement_child_node
+        if replacement_child_node:
+            replacement_child_node.parent = node.parent
+            replacement_child_node.parent_side = node.parent_side
+
         node.parent = None
 
         # attach replacement to new parent
@@ -423,6 +434,14 @@ if __name__ == '__main__':
     assert node.look_recursive(96).next() is None, draw(node) and f"Expected None on after 96, got '{node.look_recursive(96).next()}'"
     assert node.look_recursive(63).next() is node, draw(node) and f"Expected '{node.value}', got '{node.look_recursive(63).next().value}'"
     assert node.look_recursive(58).next().value == 60, draw(node) and f"Expected '{node.value}', got '{node.look_recursive(58).next().value}'"
+
+    node.add(57)
+    assert node.validate_tree(), draw(node) and "The tree is not valid"
+    assert node.look_recursive(58).left.value == 57, draw(node) and f"Expected 57, got '{node.look_recursive(58).left.value}'"
+
+    node.delete(60)
+    assert node.validate_tree(), draw(node) and "The tree is not valid"
+    assert node.look_recursive(56).right.value == 57, draw(node) and f"Expected 57, got '{node.look_recursive(56).right.value}'"
 
     draw(node)
     print("Everything is OK")
