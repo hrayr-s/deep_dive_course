@@ -295,6 +295,7 @@ class Node:
         Mirrors current node and branches recursively.
         :return:
         """
+        self.ordering = self.ordering == ASCENDING and DESCENDING or ASCENDING
         self.left, self.right = self.right, self.left
         self.left and self.left.mirror_recursively()
         self.right and self.right.mirror_recursively()
