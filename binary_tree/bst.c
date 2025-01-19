@@ -1,10 +1,12 @@
 #include "bst.h"
+
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
+#include <stdbool.h>
 
-void add(struct Node* node, Hash value)
+void add(Node* node, Hash value)
 {
     if (node->value == value)
     {
@@ -38,7 +40,7 @@ void add(struct Node* node, Hash value)
     }
 }
 
-struct Node* lower(struct Node* node)
+Node* lower(Node* node)
 {
     if (node->ordering)
     {
@@ -47,7 +49,7 @@ struct Node* lower(struct Node* node)
     return node->right;
 }
 
-struct Node* higher(struct Node* node)
+Node* higher(Node* node)
 {
     if (node->ordering)
     {
@@ -56,28 +58,28 @@ struct Node* higher(struct Node* node)
     return node->left;
 }
 
-struct Node* look_for(struct Node* node, Hash value)
+Node* look_for(Node* node, Hash value)
 {
     if (node->value == value)
     {
         return node;
     }
-    struct Node* low_node = lower(node);
-    struct Node* high_node = higher(node);
-    if (low_node != NULL && value < low_node->value)
+    Node* low_node = lower(node);
+    Node* high_node = higher(node);
+    if (low_node != NULL && value < node->value)
     {
         return look_for(low_node, value);
     }
-    if (high_node != NULL && value > high_node->value)
+    if (high_node != NULL && value > node->value)
     {
         return look_for(high_node, value);
     }
     return NULL;
 }
 
-struct Node* minimum(struct Node* node)
+Node* minimum(Node* node)
 {
-    struct Node* low_node = lower(node);
+    Node* low_node = lower(node);
     if (low_node == NULL)
     {
         return node;
@@ -85,9 +87,9 @@ struct Node* minimum(struct Node* node)
     return minimum(low_node);
 }
 
-struct Node* maximum(struct Node* node)
+Node* maximum(Node* node)
 {
-    struct Node* high_node = higher(node);
+    Node* high_node = higher(node);
     if (high_node == NULL)
     {
         return node;
@@ -105,9 +107,9 @@ void init_node_struct(Node* node)
 }
 
 
-struct Node* new_node(Hash value, struct Node* parent)
+Node* new_node(Hash value, Node* parent)
 {
-    struct Node* node = (struct Node*)malloc(sizeof(struct Node));
+    Node* node = (Node*)malloc(sizeof(struct Node));
     init_node_struct(node);
     if (!node)
     {
@@ -125,4 +127,172 @@ struct Node* new_node(Hash value, struct Node* parent)
         node->ordering = true; // ascending
     }
     return node;
+}
+
+bool validate(Node* node, Node* minimum, Node* maximum)
+{
+    if (
+        (minimum != NULL && node->value < minimum->value)
+        || (maximum != NULL && node->value > maximum->value)
+    )
+    {
+        return false;
+    }
+    if (
+        (node->left == NULL || validate(node->left, minimum, node))
+        && (node->right == NULL || validate(node->right, node, maximum))
+    )
+        return true;
+    return false;
+}
+
+/* Function: delete
+ * ----------------
+ *
+ * deletes Node with given value from give node
+ * node: Node to delete from
+ * value: eq. Hash value to delete
+ *
+ */
+void delete(Node* root_node, Hash value)
+{
+    Node* node = look_for(root_node, value);
+    if (node == NULL)
+    {
+        printf("Value %llu is not present in the BST", value);
+        return;
+    }
+    if (node->left == NULL && node->right == NULL)
+    {
+        // delete a node with no branches
+        if (node->parent->left == node)
+            node->parent->left = NULL;
+        else
+            node->parent->right = NULL;
+        free(node);
+        return;
+    }
+
+    // define replacement, we fill when find a replacement
+    Node* replacement = NULL;
+
+    if (node->left != NULL && node->right == NULL)
+    {
+        replacement = node->left;
+    }
+    else if (node->right != NULL && node->left == NULL)
+    {
+        replacement = node->right;
+    }
+    else if (node->left != NULL && node->right != NULL)
+    {
+        // We will always look for right node minimum for replacement
+        // Not the optimized way for this kind of tree. Can be re-implemented
+        replacement = minimum(node->right);
+    }
+
+    if (replacement != NULL)
+    {
+        // take care of sub-node
+        attach_sub_node_to_parent(replacement);
+
+        // attach replacement to node's parent
+        if (node->parent->left == node)
+        {
+            node->parent->left = replacement;
+        }
+        else
+        {
+            node->parent->right = replacement;
+        }
+        replacement->parent = node->parent;
+
+        set_parent(replacement, node->left, true);
+        set_parent(replacement, node->right, false);
+
+        // free the memory
+        free(node);
+    }
+}
+
+/**
+ * Link node to parent on parent left or right branch
+ *
+ * @param parent parent node
+ * @param node future child node
+ * @param Left if true place on left, otherwise on right
+ */
+void set_parent(Node* parent, Node* node, bool Left)
+{
+    if (node->parent->left == node)
+    {
+        node->parent->left = NULL;
+    } else
+    {
+        node->parent->right = NULL;
+    }
+
+    node->parent = parent;
+    if (Left == true)
+    {
+        parent->left = node;
+    } else
+    {
+        parent->right = node;
+    }
+}
+
+/**
+ * The function attaches the child node of given node to the parent node.
+ * Assuming that the node has only one child.
+ * @param node
+ */
+void attach_sub_node_to_parent(Node* node)
+{
+    if (node->parent == NULL)
+    {
+        printf("Parent is NULL for node %llu\n", node->value);
+        return;
+    }
+    if (node->left != NULL && node->right != NULL)
+    {
+        printf("Node %llu has two children. Cannot make operation `attach_sub_node_to_parent` on this kind of node\n",
+               node->value);
+        return;
+    }
+    Node* attachment = NULL;
+    if (node->left != NULL)
+    {
+        attachment = node->left;
+    }
+    else if (node->right != NULL)
+    {
+        attachment = node->right;
+    }
+    else
+    {
+        if (node->parent->left == node)
+        {
+            node->parent->left = NULL;
+        }
+        else
+        {
+            node->parent->right = NULL;
+        }
+        // nothing to attach
+        return;
+    }
+    if (node->parent->right == node)
+    {
+        node->parent->right = attachment;
+    }
+    else if (node->parent->left == node)
+    {
+        node->parent->left = attachment;
+    }
+    else
+    {
+        printf("Node %llu is invalid!", node->value);
+    }
+    attachment->parent = node->parent;
 }
