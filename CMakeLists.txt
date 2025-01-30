@@ -5,12 +5,17 @@ set(CMAKE_CXX_STANDARD 20)
 
 file(GLOB SOURCES
     binary_tree/bst.c
+    hash_tables/hash.c
+    hash_tables/open_address.c
+    hash_tables/main.c
+#    fibonacci/fibonacci.c
 )
 
 add_executable(deep_dive_course
-#        main.c
+#        mini_bash/main.c
 #        fork_2.c
 #        hash_tables/simple_table.c
+#    binary_tree/bst.c
+#        binary_tree/main.c
         ${SOURCES}
-        binary_tree/main.c
 )

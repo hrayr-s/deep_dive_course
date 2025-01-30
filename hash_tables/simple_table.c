@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <string.h>
+#include "hash.h"
 
 typedef unsigned long long Hash;
 
@@ -12,13 +13,13 @@ struct LinkList {
     struct LinkList* next;
 };
 
-struct HashMap {
+struct HashValue {
     Hash    hash;
     struct LinkList*   values;
 };
 
 struct HashTable {
-    struct HashMap* map;
+    struct HashValue* map;
     size_t size;
 };
 
@@ -26,27 +27,8 @@ struct HashTable {
 // Global variable for HashTable map
 struct HashTable* hash_table = NULL;
 
-
-Hash hasher(char* value, unsigned hashtable_size) {
-    Hash hash = 0;
-    Hash prime_pow = 89;
-    for (int i=0; value[i] !='\0'; i++) {
-        hash += prime_pow * value[i];
-        prime_pow = prime_pow * prime_pow;
-        if (i % 2 == 1) {
-            prime_pow = prime_pow * 7;
-        }
-    }
-    while(hash > hashtable_size) {
-        hash = hash % hashtable_size;
-    }
-    hash = hash + 1;
-
-    return hash;
-}
-
-struct HashMap* getOrCreateHashMapForHash(Hash hash) {
-    struct HashMap* mp = NULL;
+struct HashValue* getOrCreateHashMapForHash(Hash hash) {
+    struct HashValue* mp = NULL;
     int i = 0;
     for(i=0; i < hash_table->size; i++) {
         if (hash_table->map[i].hash == hash) {
@@ -57,7 +39,7 @@ struct HashMap* getOrCreateHashMapForHash(Hash hash) {
     if (mp == NULL) {
         for(i=0; i < hash_table->size; i++) {
             if ((&hash_table->map[i]) == NULL || hash_table->map[i].hash == 0) {
-                hash_table->map[i] = (struct HashMap) {.hash = hash};
+                hash_table->map[i] = (struct HashValue) {.hash = hash};
                 return &hash_table->map[i];
             }
         }
@@ -79,14 +61,14 @@ void addToHashMapValues(struct LinkList* next, Hash hash, char* value) {
 }
 
 void addToHashTable(Hash hash, char* value) {
-    struct HashMap* hash_map = getOrCreateHashMapForHash(hash);
-    if (hash_map->values == NULL) {
-        hash_map->values = (struct LinkList*)malloc(sizeof(struct LinkList));
-        hash_map->values->value = (char*)malloc(strlen(value) + 1);
-        strcpy(hash_map->values->value, value);
+    struct HashValue* hash_value = getOrCreateHashMapForHash(hash);
+    if (hash_value->values == NULL) {
+        hash_value->values = (struct LinkList*)malloc(sizeof(struct LinkList));
+        hash_value->values->value = (char*)malloc(strlen(value) + 1);
+        strcpy(hash_value->values->value, value);
         return;
     }
-    addToHashMapValues(hash_map->values, hash, value);
+    addToHashMapValues(hash_value->values, hash, value);
 }
 
 void printNextVal(struct LinkList* next) {
@@ -100,13 +82,13 @@ void printNextVal(struct LinkList* next) {
     printNextVal(next->next);
 }
 
-void printHashMap(struct HashMap* hash_map) {
-    if (hash_map == NULL || hash_map->hash == 0) {
+void printHashMap(struct HashValue* hash_value) {
+    if (hash_value == NULL || hash_value->hash == 0) {
         printf(".");
         return;
     }
-    printf("Hash %llu for ", hash_map->hash);
-    printNextVal(hash_map->values);
+    printf("Hash %llu for ", hash_value->hash);
+    printNextVal(hash_value->values);
     printf("\n");
 }
 
@@ -120,10 +102,10 @@ int main()
     hash_table = (struct HashTable*)malloc(sizeof(struct HashTable));
     hash_table->size = hashtable_size;
 
-    hash_table->map = (struct HashMap*)malloc(sizeof(struct HashMap) * hashtable_size);
+    hash_table->map = (struct HashValue*)malloc(sizeof(struct HashValue) * hashtable_size);
 
     for (int i = 0; i < hashtable_size; i++) {
-      hash_table->map[i] = (struct HashMap ){.hash=0, .values=NULL};
+      hash_table->map[i] = (struct HashValue ){.hash=0, .values=NULL};
     }
 
     size_t len = 0;
