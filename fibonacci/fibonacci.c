@@ -36,12 +36,13 @@ unsigned long long int de_formula(unsigned long long int n) {
         unsigned long long int k = n / 2;
 
         k = de_formula(k) * (2 * de_formula(k - 1) + de_formula(k));
-        if (n <=99)
+        if (n <=99 && fib_cache[n] == -1)
         {
             fib_cache[n] = k;
         }
         return k;
     }
+
     unsigned long long int _n = (n + 1) / 2;
     unsigned long long int a = de_formula(_n);
     unsigned long long int b = de_formula(_n - 1);
