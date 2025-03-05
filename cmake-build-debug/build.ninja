@@ -39,7 +39,7 @@ include CMakeFiles/rules.ninja
 #############################################
 # Logical path to working directory; prefix for absolute paths.
 
-cmake_ninja_workdir = /Users/hrayrstepanyan/CLionProjects/deep_dive_course/cmake-build-debug/
+cmake_ninja_workdir = /Users/hrayr/CLionProjects/deep_dive_course/cmake-build-debug/
 # =============================================================================
 # Object build statements for EXECUTABLE target deep_dive_course
 
@@ -53,9 +53,19 @@ build CMakeFiles/deep_dive_course.dir/spinlock_mutex.c.o: C_COMPILER__deep_dive_
   DEP_FILE = CMakeFiles/deep_dive_course.dir/spinlock_mutex.c.o.d
   FLAGS = -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -fcolor-diagnostics
   OBJECT_DIR = CMakeFiles/deep_dive_course.dir
-  OBJECT_FILE_DIR = CMakeFiles/deep_dive_course.dir
-  TARGET_COMPILE_PDB = CMakeFiles/deep_dive_course.dir/
-  TARGET_PDB = deep_dive_course.pdb
+  OBJECT_FILE_DIR = CMakeFiles/deep_dive_course.dir/hash_tables
+
+build CMakeFiles/deep_dive_course.dir/hash_tables/main.c.o: C_COMPILER__deep_dive_course_unscanned_Debug /Users/hrayr/CLionProjects/deep_dive_course/hash_tables/main.c || cmake_object_order_depends_target_deep_dive_course
+  DEP_FILE = CMakeFiles/deep_dive_course.dir/hash_tables/main.c.o.d
+  FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX15.2.sdk -fcolor-diagnostics
+  OBJECT_DIR = CMakeFiles/deep_dive_course.dir
+  OBJECT_FILE_DIR = CMakeFiles/deep_dive_course.dir/hash_tables
+
+build CMakeFiles/deep_dive_course.dir/hash_tables/open_address.c.o: C_COMPILER__deep_dive_course_unscanned_Debug /Users/hrayr/CLionProjects/deep_dive_course/hash_tables/open_address.c || cmake_object_order_depends_target_deep_dive_course
+  DEP_FILE = CMakeFiles/deep_dive_course.dir/hash_tables/open_address.c.o.d
+  FLAGS = -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX15.2.sdk -fcolor-diagnostics
+  OBJECT_DIR = CMakeFiles/deep_dive_course.dir
+  OBJECT_FILE_DIR = CMakeFiles/deep_dive_course.dir/hash_tables
 
 
 # =============================================================================
@@ -71,16 +81,15 @@ build deep_dive_course: C_EXECUTABLE_LINKER__deep_dive_course_Debug CMakeFiles/d
   OBJECT_DIR = CMakeFiles/deep_dive_course.dir
   POST_BUILD = :
   PRE_LINK = :
-  TARGET_COMPILE_PDB = CMakeFiles/deep_dive_course.dir/
   TARGET_FILE = deep_dive_course
-  TARGET_PDB = deep_dive_course.pdb
+  TARGET_PDB = deep_dive_course.dbg
 
 
 #############################################
 # Utility command for edit_cache
 
 build CMakeFiles/edit_cache.util: CUSTOM_COMMAND
-  COMMAND = cd /Users/hrayrstepanyan/CLionProjects/deep_dive_course/cmake-build-debug && "/Users/hrayrstepanyan/Applications/CLion 2025.1 EAP.app/Contents/bin/cmake/mac/aarch64/bin/cmake" -E echo No\ interactive\ CMake\ dialog\ available.
+  COMMAND = cd /Users/hrayr/CLionProjects/deep_dive_course/cmake-build-debug && "/Applications/CLion 2025.1 EAP.app/Contents/bin/cmake/mac/x64/bin/cmake" -E echo No\ interactive\ CMake\ dialog\ available.
   DESC = No interactive CMake dialog available...
   restat = 1
 
@@ -91,7 +100,7 @@ build edit_cache: phony CMakeFiles/edit_cache.util
 # Utility command for rebuild_cache
 
 build CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
-  COMMAND = cd /Users/hrayrstepanyan/CLionProjects/deep_dive_course/cmake-build-debug && "/Users/hrayrstepanyan/Applications/CLion 2025.1 EAP.app/Contents/bin/cmake/mac/aarch64/bin/cmake" --regenerate-during-build -S/Users/hrayrstepanyan/CLionProjects/deep_dive_course -B/Users/hrayrstepanyan/CLionProjects/deep_dive_course/cmake-build-debug
+  COMMAND = cd /Users/hrayr/CLionProjects/deep_dive_course/cmake-build-debug && "/Applications/CLion 2025.1 EAP.app/Contents/bin/cmake/mac/x64/bin/cmake" --regenerate-during-build -S/Users/hrayr/CLionProjects/deep_dive_course -B/Users/hrayr/CLionProjects/deep_dive_course/cmake-build-debug
   DESC = Running CMake to regenerate build system...
   pool = console
   restat = 1
@@ -107,7 +116,7 @@ build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 # =============================================================================
 
 #############################################
-# Folder: /Users/hrayrstepanyan/CLionProjects/deep_dive_course/cmake-build-debug
+# Folder: /Users/hrayr/CLionProjects/deep_dive_course/cmake-build-debug
 
 build all: phony deep_dive_course
 
